@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>TODO List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/index}">TODO List</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" th:href="@{/tasks/new(filter=${filter.name()},keyword=${keyword})}">New task</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<br /><br />
+<div class="container">
+    <div class="btn-group d-inline-block">
+        <h4>Filtered as: </h4>
+        <a class="btn" th:classappend="${filter.name() == 'All'} ? 'btn-primary disabled' : 'btn-secondary'" th:href="@{/tasks(filter=All,keyword=${keyword})}" role="button">All</a>
+        <a class="btn" th:classappend="${filter.name() == 'Completed'} ? 'btn-primary disabled' : 'btn-secondary'" th:href="@{/tasks(filter=Completed,keyword=${keyword})}" role="button">Completed</a>
+        <a class="btn" th:classappend="${filter.name() == 'NotCompleted'} ? 'btn-primary disabled' : 'btn-secondary'" th:href="@{/tasks(filter=NotCompleted,keyword=${keyword})}" role="button">Not completed</a>
+    </div>
+</div>
+<br />
+<div class="container">
+    <form method="get" th:action="@{/tasks}">
+        <input type="hidden" name="filter" th:value="${filter.name()}" />
+        <input name="keyword" placeholder="Keyword" size="50" th:value="${keyword}" type="text" />
+        <button class="btn btn-primary" type="submit">Search</button>
+        <a class="btn btn-primary" th:href="@{/tasks(filter=${filter.name()})}" role="button">Reset</a>
+    </form>
+</div>
+<br />
+<div class="container">
+    <div class="list-group">
+        <tr th:each="task: ${tasks}">
+            <a th:href="@{/tasks/edit/__${task.id}__(filter=${filter.name()},keyword=${keyword})}" class="list-group-item list-group-item-action flex-column align-items-start" th:classappend="${task.category.getAttributes()}">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 th:text="${task.name}" class="mb-1"></h5>
+                    <form action="#" th:action="@{/tasks/__${task.id}__(filter=${filter.name()},keyword=${keyword})}" method="post">
+                        <input type="submit" th:value="${task.completed} ? 'Mark as not complete' : 'Mark as complete'" />
+                    </form>
+                </div>
+                <small th:if="${task.expirationDate != null}" th:text="${#dates.format(new java.util.Date(task.expirationDate.getTime()), 'dd-MM-yyyy HH:mm')} + ' | ' + ${task.category.isDefaultValue() ? 'No priority' : task.category.getFancyName()}" class="text-muted"></small>
+            </a>
+        </tr>
+    </div>
+</div>
+</body>
+</html>
